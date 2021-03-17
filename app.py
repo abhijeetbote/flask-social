@@ -124,8 +124,8 @@ def logout():
 oauth = OAuth(app)
 google = oauth.register(
     name='google',
-    client_id="945356047879-5qdriqohgoo72dlasd1eao3g8tqa2pa0.apps.googleusercontent.com",
-    client_secret="C5Qj62BrYVvAhRMVFVOI-eXH",
+    client_id="945356047879-u5q9gm37vgrfum4eehvs05jt25t6b8vk.apps.googleusercontent.com",
+    client_secret="qufv-0TKYRqsCM5Fif1xFwvs",
     access_token_url='https://accounts.google.com/o/oauth2/token',
     access_token_params=None,
     authorize_url='https://accounts.google.com/o/oauth2/auth',
@@ -192,7 +192,7 @@ def google_homepage():
 
 # Your ngrok url, obtained after running "ngrok http 5000"
 # URL = "https://679e4c83.ngrok.io"
-URL = "http://localhost:8080"
+URL = "https://flask-demo-social.herokuapp.com"
 
 FB_CLIENT_ID = "1163520467436459"
 FB_CLIENT_SECRET = "7633675af0971a60de63e0a5e0b961fc"

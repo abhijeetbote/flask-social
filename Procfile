@@ -1,1 +1,1 @@
-web: gunicorn app:session
+web: gunicorn app:app

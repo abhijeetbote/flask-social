@@ -156,9 +156,9 @@ def authorize():
     # print(google_user_name)
     google_user_email = user_info["email"]
     # print(google_user_email)
-    mycursor = mysql.connection.cursor()
-    mycursor.execute("insert into userdata (user_name,user_email)values(%s,%s)", (google_user_name,google_user_email,))
-    mysql.connection.commit()
+    # mycursor = mysql.connection.cursor()
+    # mycursor.execute("insert into userdata (user_name,user_email)values(%s,%s)", (google_user_name,google_user_email,))
+    # mysql.connection.commit()
     session["email"] = user_info['email'] 
     # do something with the token and profile
     return redirect('/google_homepage')

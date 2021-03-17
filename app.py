@@ -246,9 +246,9 @@ def callback():
     name = facebook_user_data["name"]
     picture_url = facebook_user_data.get("picture", {}).get("data", {}).get("url")
     # facebook user name and email store in db
-    mycursor = mysql.connection.cursor()
-    mycursor.execute("insert into userdata (user_name,user_email)values(%s,%s)", (name,email,))
-    mysql.connection.commit()
+    # mycursor = mysql.connection.cursor()
+    # mycursor.execute("insert into userdata (user_name,user_email)values(%s,%s)", (name,email,))
+    # mysql.connection.commit()
 
     #login details
     return f"""

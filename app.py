@@ -61,7 +61,7 @@ def success():
         with open("users.csv", mode="r") as f:
             reader = csv.reader(f, delimiter = ",")
             for row in reader:
-                print(row)
+                # print(row)
                 if user and password in row:
                     session['user'] = user
                     return redirect(url_for('user'))

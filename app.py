@@ -5,6 +5,7 @@ import os
 import json
 import flask
 import requests_oauthlib
+import csv
 from requests_oauthlib.compliance_fixes import facebook_compliance_fix
 from flask import Flask, session, redirect, url_for, escape, request,render_template, flash
 from flask_mysqldb import MySQL
@@ -57,19 +58,27 @@ def success():
     if request.method == 'POST':
         user = request.form['nm']
         password = request.form['am']
-        mycursor = mysql.connection.cursor()
-        print(user)
-        print(password)
-        mycursor.execute("select * from userdata where user_email = '" + user + "' and user_password = '" + password + "'")
-        
-        data = mycursor.fetchone()
-        print(data)
-        mysql.connection.commit()
-        if data is None:
-            return render_template('home.html')
-        else:
-            session['user'] = user
-            return redirect(url_for('user'))   
+        with open("users.csv", mode="r") as f:
+            reader = csv.reader(f, delimiter = ",")
+            for row in reader:
+                print(row)
+                if user and password in row:
+                    session['user'] = user
+                    return redirect(url_for('user'))
+                else:
+                    return render_template('home.html')
+        # mycursor = mysql.connection.cursor()
+        # print(user)
+        # print(password)
+        # mycursor.execute("select * from userdata where user_email = '" + user + "' and user_password = '" + password + "'")
+        # data = mycursor.fetchone()
+        # print(data)
+        # mysql.connection.commit()
+        # if data is None:
+        #     return render_template('home.html')
+        # else:
+        #     session['user'] = user
+        #     return redirect(url_for('user'))   
         #return render_template('success.html')
     else:
         return render_template('login.html')
@@ -81,12 +90,16 @@ def signupsuccess():
         name = request.form['name']
         email = request.form['email']
         password = request.form['pwd']
-        mycursor = mysql.connection.cursor()
-        mycursor.execute("insert into userdata (user_name,user_email,user_password)values(%s,%s,%s)", (name,email,password))
-        mysql.connection.commit()
-        print("success")
-        session['user'] = email
-        return redirect(url_for('login'))   
+        with open("users.csv", mode="a", newline="") as f:
+            write = csv.writer(f, delimiter=",")
+            write.writerow([name,email,password])
+            print("registration succesful")
+        # mycursor = mysql.connection.cursor()
+        # mycursor.execute("insert into userdata (user_name,user_email,user_password)values(%s,%s,%s)", (name,email,password))
+        # mysql.connection.commit()
+            print("success")
+            session['user'] = email
+            return redirect(url_for('login'))   
         #return render_template('success.html')
     else:
         return render_template('login.html')
@@ -155,13 +168,17 @@ def authorize():
     google_user_name = user_info["name"]
     # print(google_user_name)
     google_user_email = user_info["email"]
+    with open("social_users.csv", mode="a", newline="") as f:
+        write = csv.writer(f, delimiter=",")
+        write.writerow([google_user_name,google_user_email])
+        print("registration succesful")
     # print(google_user_email)
     # mycursor = mysql.connection.cursor()
     # mycursor.execute("insert into userdata (user_name,user_email)values(%s,%s)", (google_user_name,google_user_email,))
     # mysql.connection.commit()
-    session["email"] = user_info['email'] 
+        session["email"] = google_user_email
     # do something with the token and profile
-    return redirect('/google_homepage')
+        return redirect('/google_homepage')
 
 
 #Google home page
@@ -245,18 +262,22 @@ def callback():
     email = facebook_user_data["email"]
     name = facebook_user_data["name"]
     picture_url = facebook_user_data.get("picture", {}).get("data", {}).get("url")
+    with open("social_users.csv", mode="a", newline="") as f:
+        write = csv.writer(f, delimiter=",")
+        write.writerow([name,email])
+        print("registration succesful")
     # facebook user name and email store in db
     # mycursor = mysql.connection.cursor()
     # mycursor.execute("insert into userdata (user_name,user_email)values(%s,%s)", (name,email,))
     # mysql.connection.commit()
 
     #login details
-    return f"""
-    User information: <br>
-    Name: {name} <br>
-    Email: {email} <br>
-    Avatar <img src="{picture_url}"> <br>
-    <a href="/">Home</a>
-    """
+        return f"""
+        User information: <br>
+        Name: {name} <br>
+        Email: {email} <br>
+        Avatar <img src="{picture_url}"> <br>
+        <a href="/">Home</a>
+        """
 if __name__ == '__main__':
     app.run(debug = True)

@@ -6,12 +6,14 @@ import json
 import flask
 import requests_oauthlib
 import pandas as pd
+import json
 from requests_oauthlib.compliance_fixes import facebook_compliance_fix
-from flask import Flask, session, redirect, url_for, escape, request,render_template, flash
+from flask import Flask, session, redirect, url_for, escape, request,render_template, flash,send_file
 from flask_mysqldb import MySQL
 from authlib.integrations.flask_client import OAuth
 
-
+user_name = []
+user_email = []
 #initializing app as a flask app
 app = Flask(__name__,template_folder='template')
 
@@ -67,43 +69,35 @@ def get_pass(email):
     print("password from get_pass",pwd)
     return pwd
 
+# return user name for login authentication
+def get_username(username):
+    data = pd.read_csv("users.csv")
+    username = data["username"].loc[data["email"] == username].iloc[0]
+    print("username from get_pass",username)
+    return username
+
 
 
 #login function for our app login
 @app.route('/success',methods = ['POST'])
 def success():
+    global user_name
     if request.method == 'POST':
         user = request.form['nm']
         pwd = request.form['am']
         user_data = get_user()
         if user in user_data:
             password = get_pass(user)
+            user_name = get_username(user)
+            # print(user_name)
         # print("password from login",str(password))
         # print("password from user", str(pwd))
             if pwd == password:
                 session['user'] = user
                 return redirect(url_for('user'))
             else:
-                return render_template('home.html', login=True)
-        # if user and password in rows:
-        #     print(rows)
-        #     session['user'] = user
-        #     return redirect(url_for('user'))
-        # else:
-        #     return render_template('home.html')
-        # mycursor = mysql.connection.cursor()
-        # print(user)
-        # print(password)
-        # mycursor.execute("select * from userdata where user_email = '" + user + "' and user_password = '" + password + "'")
-        # data = mycursor.fetchone()
-        # print(data)
-        # mysql.connection.commit()
-        # if data is None:
-        #     return render_template('home.html')
-        # else:
-        #     session['user'] = user
-        #     return redirect(url_for('user'))   
-        #return render_template('success.html')
+                return render_template('login.html')
+        else:return render_template('login.html')
     else:
         return render_template('login.html')
 
@@ -139,11 +133,99 @@ def signupsuccess():
 #profile page for our app
 @app.route("/profile",methods = ['POST','GET'])
 def user():
+    global user_name
     if "user" in session:
        user = session['user']
-       return render_template('profile.html', content = user)
+       user_name = user_name
+       return render_template('profile.html', content = user, user_name = user_name)
     else:
        return render_template('login.html')
+
+def json_loads(dictionary,json_mode):
+    json_object = json.dumps(dictionary, indent = 10)
+    with open("sample.json", json_mode) as outfile: 
+        outfile.write(json_object)
+
+@app.route('/profile_json',methods = ['POST'])
+def profile_json():
+    global user_name
+    user = session['user']
+
+    if request.method == 'POST':
+        dictionary ={ 
+            "Name" : user_name, 
+            "Email" : user, 
+        } 
+        print("dict2", dictionary)
+        name = request.form.to_dict()
+        print(name["altcontact"])
+        if name["altcontact"] == "":
+            name.pop("altcontact") #requesting form data from html profile form user details
+        main_dict = {**dictionary, **name}
+        json_mode = "w"
+        json_loads(main_dict,json_mode)#calling function to dump data in json file
+        # return render_template("education.html")
+        return redirect(url_for('json_download_link')) 
+
+       
+
+@app.route("/json_download_link")
+def json_download_link():
+    p = "sample.json"
+    return send_file(p,as_attachment = True)
+
+# @app.route('/address_json',methods = ['POST'])
+# def address():
+#     if request.method == 'POST':
+#         city = request.form['city']
+#         state = request.form['state']
+#         user = session['user']
+#         dictionary ={ 
+#             "city" : city, 
+#             "state" : state, 
+
+#         } 
+#         json_object = json.dumps(dictionary, indent = 4)   
+#         # Writing to sample.json 
+#         with open("sample.json", "w") as outfile: 
+#             outfile.write(json_object)
+#             return render_template("contact.html", content = user) 
+
+
+# @app.route('/contact_json',methods = ['POST'])
+# def contact_json():
+#     if request.method == 'POST':
+#         contact = request.form['contact']
+#         altcontact = request.form['altcontact']
+#         user = session['user']
+#         dictionary ={ 
+#             "contact" : contact, 
+#             "altcontact" : altcontact, 
+
+#         } 
+#         json_object = json.dumps(dictionary, indent = 4)   
+#         # Writing to sample.json 
+#         with open("sample.json", "w") as outfile: 
+#             outfile.write(json_object)
+#             return render_template("contact.html", content = user) 
+
+
+# @app.route('/education_json',methods = ['POST'])
+# def education_json():
+#     if request.method == 'POST':
+#         primary = request.form['primary']
+#         secondary = request.form['secondary']
+#         user = session['user']
+#         dictionary ={ 
+#             "primary" : primary, 
+#             "secondary" : secondary, 
+
+#         } 
+#         json_object = json.dumps(dictionary, indent = 4)   
+#         # Writing to sample.json 
+#         with open("sample.json", "w") as outfile: 
+#             outfile.write(json_object)
+#             return render_template("userdetail_js.html", content = user) 
 
 #logout function for our app
 @app.route('/logout')

@@ -88,7 +88,7 @@ def success():
         user_data = get_user()
         if user in user_data:
             password = get_pass(user)
-            user_name = get_username(user)
+            
             # print(user_name)
         # print("password from login",str(password))
         # print("password from user", str(pwd))
@@ -120,13 +120,7 @@ def signupsuccess():
             email=email
             return render_template("/login.html",email=email)
 
-        # mycursor = mysql.connection.cursor()
-        # mycursor.execute("insert into userdata (user_name,user_email,user_password)values(%s,%s,%s)", (name,email,password))
-        # mysql.connection.commit()
-            # print("success")
-            # session['user'] = email
-            # return redirect(url_for('login'))   
-        #return render_template('success.html')
+
     else:
         return render_template('login.html')
 
@@ -136,7 +130,8 @@ def user():
     global user_name
     if "user" in session:
        user = session['user']
-       user_name = user_name
+       user_name = get_username(user)
+    #    user_name = user_name
        return render_template('profile.html', content = user, user_name = user_name)
     else:
        return render_template('login.html')
@@ -150,6 +145,7 @@ def json_loads(dictionary,json_mode):
 def profile_json():
     global user_name
     user = session['user']
+    user_name = get_username(user)
 
     if request.method == 'POST':
         dictionary ={ 
@@ -174,58 +170,6 @@ def json_download_link():
     p = "sample.json"
     return send_file(p,as_attachment = True)
 
-# @app.route('/address_json',methods = ['POST'])
-# def address():
-#     if request.method == 'POST':
-#         city = request.form['city']
-#         state = request.form['state']
-#         user = session['user']
-#         dictionary ={ 
-#             "city" : city, 
-#             "state" : state, 
-
-#         } 
-#         json_object = json.dumps(dictionary, indent = 4)   
-#         # Writing to sample.json 
-#         with open("sample.json", "w") as outfile: 
-#             outfile.write(json_object)
-#             return render_template("contact.html", content = user) 
-
-
-# @app.route('/contact_json',methods = ['POST'])
-# def contact_json():
-#     if request.method == 'POST':
-#         contact = request.form['contact']
-#         altcontact = request.form['altcontact']
-#         user = session['user']
-#         dictionary ={ 
-#             "contact" : contact, 
-#             "altcontact" : altcontact, 
-
-#         } 
-#         json_object = json.dumps(dictionary, indent = 4)   
-#         # Writing to sample.json 
-#         with open("sample.json", "w") as outfile: 
-#             outfile.write(json_object)
-#             return render_template("contact.html", content = user) 
-
-
-# @app.route('/education_json',methods = ['POST'])
-# def education_json():
-#     if request.method == 'POST':
-#         primary = request.form['primary']
-#         secondary = request.form['secondary']
-#         user = session['user']
-#         dictionary ={ 
-#             "primary" : primary, 
-#             "secondary" : secondary, 
-
-#         } 
-#         json_object = json.dumps(dictionary, indent = 4)   
-#         # Writing to sample.json 
-#         with open("sample.json", "w") as outfile: 
-#             outfile.write(json_object)
-#             return render_template("userdetail_js.html", content = user) 
 
 #logout function for our app
 @app.route('/logout')
@@ -282,25 +226,42 @@ def authorize():
     google_user_name = user_info["name"]
     # print(google_user_name)
     google_user_email = user_info["email"]
+    # google_picture_url = resp.get("picture", {}).get("data", {}).get("url")
 
     # print(google_user_email)
     # mycursor = mysql.connection.cursor()
     # mycursor.execute("insert into userdata (user_name,user_email)values(%s,%s)", (google_user_name,google_user_email,))
     # mysql.connection.commit()
     session["email"] = google_user_email
+    session["name"] = google_user_name
     # do something with the token and profile
-    return redirect('/google_homepage')
+    return f"""
+        User information: <br>
+        Name: {google_user_name} <br>
+        Email: {google_user_email} <br>
+        <a href="/">Home</a>
+        """
 
 
-#Google home page
-@app.route('/google_homepage')
-def google_homepage():
-    if "email" in session:
-        email = dict(session).get('email', None)
-        #return f'Hello, {email}!'
-        return render_template("profile.html", content = email)
-    else :
-        return redirect(url_for('home'))
+# #Google home page
+# @app.route('/google_homepage')
+# def google_homepage():
+#     if "email" in session:
+#         email = dict(session).get('email', None)
+#         print(email)
+#         g_name = dict(session).get('name', None)
+#         print(g_name)
+#         picture_url = facebook_user_data.get("picture", {}).get("data", {}).get("url")
+#         #return f'Hello, {email}!'
+#         return f"""
+#         User information: <br>
+#         Name: {name} <br>
+#         Email: {email} <br>
+#         Avatar <img src="{picture_url}"> <br>
+#         <a href="/">Home</a>
+#         """
+#     else :
+#         return redirect(url_for('home'))
 
 
 # @app.route('/google_logout')

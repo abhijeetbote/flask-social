@@ -1,0 +1,26 @@
+<html>
+
+<body>
+    <form action = "/google_profile_json" method = "post"> <!-- page2 address page -->
+        <h2>Welcome to {{content}} profile</h2><br>  
+        Hi {{user_name}}<br>    
+        <!-- <input type="text" id="myText" value="Mickey"> -->
+        <!-- <p>Enter Name:<input type = text name = "name" value={{user_name}}></p>
+        <p>Enter email:<input type = text name = "email" value={{content}}></p> -->
+        <p><h2>Details:</h2></p>
+        <p>Enter city:<input type = text name = "city" placeholder="Enter your city"/></p>
+        <p>Enter state:<input type = text name = "state" placeholder="Enter state"/></p>
+        <p><h2>Contact:</h2></p>
+        <p>Enter contact no:<input type = text name = "contact" placeholder="Enter your contact no"/></p>
+        <p>Enter alternate contact no:<input type = text name = "altcontact" placeholder="Enter alt contact no"/></p>
+        <h2>Education Details :</h2>
+        <p>Enter Primary institute:<input type = text name = "primary" placeholder="primary institute"/></p>
+        <p>Enter secondary institute:<input type = text name = "secondary" placeholder="secondary institute"/></p>
+        
+        <p><input type = "submit" value = "submit and download .json file" /></p>
+     </form>
+    <a href='/logout'>
+        <button>Logout</button>
+    </a>
+</body>
+</html>
